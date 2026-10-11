@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Learning to Be Guided</title>
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+/* Layout: one reading column (44rem) with wide breakouts (68rem) for teaser, widget, figures and tables */
+:root{
+  --bg:#F4F7F7; --surface:#FFFFFF; --ink:#141A1D; --muted:#58656B; --line:#D8E0E2;
+  --accent:#0E6A73; --accent-ink:#FFFFFF; --mark:#D9EDEC; --soft:#EAF1F1;
+  --contrast:#0E6A73; --weight:#AD5C17; --spread:#6A4DB0;
+  --font-display:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
+  --font-body:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --col:44rem; --wide:68rem;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1315; --surface:#151C1F; --ink:#E3EAEB; --muted:#94A3A8; --line:#27333A;
+  --accent:#55BAC2; --accent-ink:#0B1012; --mark:#173B3E; --soft:#18242A;
+  --contrast:#55BAC2; --weight:#E4A35F; --spread:#B39AE6;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1315; --surface:#151C1F; --ink:#E3EAEB; --muted:#94A3A8; --line:#27333A;
+  --accent:#55BAC2; --accent-ink:#0B1012; --mark:#173B3E; --soft:#18242A;
+  --contrast:#55BAC2; --weight:#E4A35F; --spread:#B39AE6;
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0}
+img{max-width:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:17px;line-height:1.62;
+  padding-inline:16px;padding-block:0 3rem;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--font-display);text-wrap:balance;line-height:1.2;margin:0}
+h2{font-size:1.85rem;font-weight:700;letter-spacing:-.015em}
+h3{font-size:1.2rem;font-weight:600}
+h4{font-size:.76rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+p{margin:0}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+code,pre{font-family:var(--font-mono);font-size:.84em}
+.col{max-width:var(--col);margin-inline:auto}
+.wide{max-width:var(--wide);margin-inline:auto}
+section{padding-block:3.2rem 0}
+.stack{display:flex;flex-direction:column;gap:1.1rem}
+.eyebrow{font-family:var(--font-display);font-size:.76rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--accent)}
+.lede{color:var(--muted)}
+.num{font-family:var(--font-display);font-weight:600;color:var(--weight);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* nav */
+nav.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;margin-inline:-16px;padding:.55rem 16px;
+  background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+nav.top .wide{display:flex;gap:1.2rem;align-items:center;overflow-x:auto;font-family:var(--font-display);font-size:.88rem;font-weight:500}
+nav.top a{color:var(--muted);text-decoration:none;white-space:nowrap}
+nav.top a:hover{color:var(--ink)}
+nav.top .brand{color:var(--ink);font-weight:600;margin-right:auto}
+
+/* hero */
+.hero{padding-block:3.4rem 0;text-align:center}
+.hero h1{font-size:clamp(1.85rem,4.2vw,3rem);font-weight:700;letter-spacing:-.02em;margin-block:0 1.4rem;max-width:52rem;margin-inline:auto}
+.hero h1 span{display:block;color:var(--accent)}
+.authors{display:flex;flex-direction:column;gap:.2rem;font-size:1.06rem}
+.authors .row{display:flex;flex-wrap:wrap;justify-content:center;gap:.25rem 1.2rem}
+.authors a{color:inherit;text-decoration:none}
+.affil{margin-top:.7rem;color:var(--muted);font-size:.95rem;display:flex;flex-wrap:wrap;justify-content:center;gap:.2rem 1.1rem}
+.affil-note{margin-top:.3rem;color:var(--muted);font-size:.95rem;display:flex;flex-wrap:wrap;justify-content:center;gap:.2rem 1.1rem}
+sup{font-size:.68em;line-height:0}
+.links{display:flex;flex-wrap:wrap;justify-content:center;gap:.6rem;margin-top:1.5rem}
+.links a{font-family:var(--font-display);font-weight:600;font-size:.92rem;text-decoration:none;color:var(--ink);
+  border:1.5px solid var(--ink);padding:.42rem 1rem;border-radius:999px}
+.links a:hover{background:var(--ink);color:var(--bg)}
+
+/* teaser */
+.teaser{margin-top:2.6rem;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:2.2rem;align-items:center;
+  background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:2rem;text-align:left}
+.teaser>div:first-child{container-type:inline-size}
+.teaser h2{font-size:min(2.3rem,6.8cqi);white-space:nowrap}
+.teaser h2 em{font-style:normal;color:var(--accent)}
+.obs{list-style:none;padding:0;margin:1.2rem 0 0;display:flex;flex-direction:column;gap:.7rem}
+.obs li{display:grid;grid-template-columns:2rem minmax(0,1fr);gap:.3rem}
+.obs b{font-family:var(--font-display);color:var(--muted);font-weight:600}
+.obs li.q span{color:var(--accent);font-weight:600;font-size:1.12rem}
+.cap{font-size:.86rem;color:var(--muted);margin-top:.8rem}
+
+/* tables */
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:.95rem}
+th,td{padding:.5rem .6rem;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+thead th{font-family:var(--font-display);font-weight:600;font-size:.8rem;color:var(--muted);letter-spacing:.02em;vertical-align:bottom}
+thead tr.grp th{border-bottom:none;padding-bottom:0;text-align:center;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em}
+tr.ours td{background:var(--mark)}
+tr.ours td:first-child{font-weight:600}
+td b{font-weight:700}
+.rk{display:inline-block;font-family:var(--font-mono);font-size:.7rem;font-weight:600;min-width:1.9em;text-align:center;
+  margin-left:.35rem;padding:.05rem .25rem;border-radius:4px;background:var(--soft);color:var(--muted);vertical-align:1px}
+.rk.r1{background:var(--accent);color:var(--accent-ink)}
+.bar{display:inline-block;height:.55rem;border-radius:2px;background:var(--accent);vertical-align:middle;margin-right:.4rem}
+.bar.neg{background:var(--weight)}
+td.share{min-width:9rem}
+table.ctr th:not(:first-child),table.ctr td:not(:first-child){text-align:center}
+table.tp th:nth-child(-n+3),table.tp td:nth-child(-n+3),table.tp th:nth-child(n+7),table.tp td.share,table.tp tr.grp th:last-child{text-align:left}
+table.tp th:nth-child(n+7),table.tp td.share,table.tp tr.grp th:last-child{padding-left:1.4rem}
+
+/* tldr */
+.eqband{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:1rem 1.2rem;overflow-x:auto}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:1.2rem 1.25rem;display:flex;flex-direction:column;gap:.45rem;font-size:.98rem;line-height:1.62}
+.card .k{font-family:var(--font-display);font-size:.74rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--accent)}
+.card h3{font-size:1.12rem}
+
+/* roadmap */
+.roadmap{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.5rem;counter-reset:rm}
+.roadmap li{counter-increment:rm;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.6rem .75rem;font-family:var(--font-display);font-size:.86rem;line-height:1.4}
+.roadmap li::before{content:counter(rm);display:block;font-weight:700;color:var(--accent);font-size:.8rem;margin-bottom:.15rem}
+.roadmap a{color:inherit;text-decoration:none}
+
+/* equations */
+.eq{display:flex;align-items:center;gap:.8rem}
+.eq .body{flex:1;min-width:0;overflow-x:auto;overflow-y:hidden}
+.eq .no{font-family:var(--font-display);color:var(--muted);font-size:.9rem;font-variant-numeric:tabular-nums}
+mjx-container[display="true"]{margin:.5em 0 !important}
+.cc{color:var(--contrast)} .cw{color:var(--weight)} .cs{color:var(--spread)}
+.take{border-left:3px solid var(--accent);padding:.15rem 0 .15rem .9rem;font-style:italic}
+.step{display:grid;grid-template-columns:2.4rem minmax(0,1fr);gap:.6rem;scroll-margin-top:3.5rem}
+.step .n{font-family:var(--font-display);font-weight:700;font-size:1.4rem;color:var(--accent);line-height:1.25}
+.step .stack{gap:.8rem}
+.step h3{font-size:1.3rem}
+.note{font-size:.92rem;color:var(--muted)}
+.legend-inline{display:flex;gap:.4rem 1.1rem;flex-wrap:wrap;font-size:.92rem}
+.legend-inline span::before{content:"";display:inline-block;width:.7em;height:.7em;border-radius:2px;margin-right:.35em;vertical-align:-.05em}
+.legend-inline .lc::before{background:var(--contrast)} .legend-inline .lw::before{background:var(--weight)} .legend-inline .ls::before{background:var(--spread)}
+
+/* figures */
+figure{margin:0}
+.plate{background:#FFFFFF;border:1px solid var(--line);border-radius:10px;padding:.8rem}
+.plate img{display:block;width:100%;height:auto}
+figcaption{font-size:.9rem;color:var(--muted);margin-top:.6rem}
+
+/* widget */
+.widget{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1.5rem}
+.tw{display:grid;grid-template-columns:7.5rem minmax(0,1fr) minmax(0,1fr) minmax(0,1.2fr);
+  grid-template-areas:"corner h1 h2 h3" "l1 a1 b1 cv" "l2 a2 b2 cv";gap:.8rem 1rem;margin-top:1.2rem}
+.tw-head{font-family:var(--font-display);font-size:.84rem;line-height:1.4;color:var(--muted);display:flex;flex-direction:column;gap:.15rem;align-self:end}
+.tw-head b{color:var(--ink);font-weight:600;font-size:.92rem}
+.tw-corner{grid-area:corner}
+.tw-label{font-family:var(--font-display);font-size:.86rem;display:flex;flex-direction:column;gap:.3rem;justify-content:center}
+.tw-label b{font-weight:600}
+.tw-label code,.tw-label output{font-family:var(--font-mono);font-size:.8rem;color:var(--accent)}
+.tw-label.base code{color:var(--muted)}
+.tw-label input{width:100%;accent-color:var(--accent)}
+.tw canvas.pane{display:block;width:100%;aspect-ratio:1;max-width:100%;border:1px solid var(--line);border-radius:8px;touch-action:none}
+.tw-cv{grid-area:cv;position:relative;min-height:18rem}
+#tw-curves{position:absolute;inset:0;display:block;width:100%;height:100%}
+.tw-bar{display:flex;flex-wrap:wrap;align-items:center;gap:.8rem 1.2rem;margin-top:1.1rem;padding-top:1rem;border-top:1px solid var(--line);font-family:var(--font-display);font-size:.88rem}
+.tw-bar .tctrl{flex:1 1 18rem;display:flex;align-items:center;gap:.7rem}
+.tw-bar input[type=range]{flex:1;accent-color:var(--accent)}
+.tw-bar output{font-family:var(--font-mono);font-size:.82rem;color:var(--accent);min-width:3.6rem}
+.play{font:600 .86rem var(--font-display);background:var(--ink);color:var(--bg);border:0;border-radius:999px;padding:.42rem 1rem;cursor:pointer;white-space:nowrap}
+.tog{display:flex;align-items:center;gap:.45rem;color:var(--muted);cursor:pointer}
+.tog input{accent-color:var(--accent)}
+.tw-notes{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1rem;margin-top:1rem}
+.tw-notes div{background:var(--soft);border-radius:10px;padding:.8rem 1rem;font-size:.95rem}
+.tw-notes h4{margin-bottom:.25rem;color:var(--accent)}
+.widget details{margin-top:1.1rem}
+summary{cursor:pointer;font-family:var(--font-display);font-size:.88rem;font-weight:600;color:var(--accent)}
+.widget figcaption{margin-top:.8rem}
+
+/* method */
+.diagram{overflow-x:auto}
+.diagram svg{display:block;width:100%;min-width:640px;height:auto}
+.dg-box{fill:var(--surface);stroke:var(--line);stroke-width:1.5}
+.dg-pr{fill:var(--mark);stroke:var(--accent);stroke-width:1.5}
+.dg-t{fill:var(--ink);font-family:var(--font-display);font-size:14px}
+.dg-s{fill:var(--muted);font-family:var(--font-mono);font-size:11.5px}
+.dg-a{stroke:var(--muted);stroke-width:1.5;fill:none}
+.dg-ap{stroke:var(--accent);stroke-width:1.8;fill:none}
+.dg-loss{fill:var(--accent);font-family:var(--font-display);font-size:15px;font-weight:600}
+.dg-loss2{fill:var(--muted);font-family:var(--font-display);font-size:15px;font-weight:600}
+.mirror{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1rem}
+.mirror > div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:.9rem 1rem;min-width:0;overflow-x:auto}
+.mirror h4{margin-bottom:.2rem}
+.choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}
+.choices div{border-top:2px solid var(--accent);padding-top:.6rem;font-size:.95rem}
+.choices b{font-family:var(--font-display);display:block;margin-bottom:.2rem;font-weight:600}
+ol.simp{margin:0;padding-left:1.3rem;display:flex;flex-direction:column;gap:.3rem}
+pre.code{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1rem 1.1rem;overflow-x:auto;line-height:1.55;margin:0}
+.code .c{color:var(--muted)} .code .k{color:var(--accent);font-weight:600}
+
+/* results */
+.tw3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;margin-top:.4rem}
+.tw3 div{font-size:.94rem}
+.tw3 b{font-family:var(--font-display);display:block;font-weight:600}
+.gen{display:flex;flex-direction:column;gap:1rem}
+.grow{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:1.2rem 1.3rem;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.9fr);gap:1.4rem;align-items:start}
+.grow .txt{display:flex;flex-direction:column;gap:.55rem;min-width:0}
+.grow .big{font-family:var(--font-display);font-size:1.55rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--weight);line-height:1.1}
+.grow .big small{font-size:.8rem;color:var(--muted);font-weight:500;display:block;margin-top:.25rem}
+.grow p{font-size:.94rem}
+.grow table{font-size:.86rem}
+.lim{padding-left:1.1rem;display:flex;flex-direction:column;gap:.5rem;margin:0}
+.bib{position:relative}
+.bib pre{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1rem 1.1rem;overflow-x:auto;margin:0}
+.bib button{position:absolute;top:.6rem;right:.6rem;font:600 .8rem var(--font-display);background:var(--ink);color:var(--bg);border:0;border-radius:6px;padding:.35rem .7rem;cursor:pointer}
+footer{margin-top:4rem;padding-top:1.2rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted);font-family:var(--font-display)}
+
+@media (max-width:880px){
+  .teaser,.cards,.choices,.tw3,.grow,.mirror,.tw-notes{grid-template-columns:minmax(0,1fr)}
+  .roadmap{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .teaser,.widget{padding:1.1rem}
+  .teaser h2{font-size:clamp(1.65rem,3.2vw,2.3rem);white-space:normal}
+  .tw{grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    grid-template-areas:"h1 h2" "l1 l1" "a1 b1" "l2 l2" "a2 b2" "h3 h3" "cv cv"}
+  .tw-corner{display:none}
+  .tw-label{flex-direction:row;flex-wrap:wrap;align-items:center;gap:.3rem .8rem}
+  .tw-label input{flex:1 1 10rem}
+  .tw-cv{min-height:17rem}
+}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+section[id]{scroll-margin-top:3.5rem}
+</style>
+
+<script>
+window.MathJax={
+  tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],packages:{'[+]':['html']}},
+  svg:{fontCache:'global'},
+  options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg-full.js" defer></script>
+
+</head>
+<body>
+<nav class="top"><div class="wide">
+  <a class="brand" href="#top">Learning to Be Guided</a>
+  <a href="#tldr">TL;DR</a><a href="#analysis">Analysis</a><a href="#method">Method</a><a href="#results">Results</a><a href="#bibtex">BibTeX</a>
+</div></nav>
+
+<header class="hero wide" id="top">
+  <h1>Learning to Be Guided: <span>Shaping Latent Geometry for Classifier-Free Guidance</span></h1>
+  <div class="authors">
+    <div class="row"><span><a href="https://hmdliu.site/" target="_blank" rel="noopener">Haoming Liu</a><sup>1,2,*,†</sup></span><span><a href="https://www.linkedin.com/in/junhao-zhu-70690624a/" target="_blank" rel="noopener">Junhao Zhu</a><sup>2,3,*</sup></span><span><a href="https://www.shaoyizheng.me/" target="_blank" rel="noopener">Shaoyi Zheng</a><sup>1,2,*</sup></span></div>
+    <div class="row"><span><a href="https://ricercarg.github.io/" target="_blank" rel="noopener">Yuanhe Guo</a><sup>1,2</sup></span><span><a href="https://www.linkedin.com/in/jinnuo-liu-884190266/" target="_blank" rel="noopener">Jinnuo Liu</a><sup>1,2</sup></span><span><a href="https://scholar.google.com/citations?user=5lnIJhIAAAAJ" target="_blank" rel="noopener">Shenji Wan</a><sup>1,2</sup></span><span><a href="https://whongyi.github.io/" target="_blank" rel="noopener">Hongyi Wen</a><sup>1,2,†</sup></span></div>
+  </div>
+  <div class="affil"><span><sup>1</sup>New York University</span><span><sup>2</sup>New York University Shanghai</span><span><sup>3</sup>Georgia Institute of Technology</span></div>
+  <div class="affil-note"><span><sup>*</sup>Equal contribution</span><span><sup>†</sup>Corresponding authors</span></div>
+  <div class="links">
+    <a href="#" target="_blank" rel="noopener">Paper</a>
+    <a href="#" target="_blank" rel="noopener">arXiv</a>
+    <!-- <a href="#" target="_blank" rel="noopener">Code</a> -->
+    <a href="#bibtex">BibTeX</a></div>
+
+  <div class="teaser">
+    <div>
+      <h2>Easy to Diffuse <em>≠</em> Easy to Guide</h2>
+      <ul class="obs">
+        <li><b>(a)</b><span>Conditional diffusion models are almost always sampled and evaluated with guidance (typically CFG).</span></li>
+        <li><b>(b)</b><span>Meanwhile, improving a latent space for unguided generation does not necessarily improve guided generation.</span></li>
+        <li class="q"><b>(c)</b><span>What makes a latent space CFG-compatible, and how can we learn one?</span></li>
+      </ul>
+    </div>
+    <div>
+      <div class="tbl"><table>
+        <thead><tr><th>Method</th><th>gFID w/o CFG ↓</th><th>gFID w/ CFG ↓</th></tr></thead>
+        <tbody>
+          <tr><td>LDM</td><td>13.09<span class="rk">#4</span></td><td>3.31<span class="rk">#4</span></td></tr>
+          <tr><td>VA-VAE (DINOv3-B)</td><td>9.76<span class="rk">#2</span></td><td>2.64<span class="rk">#3</span></td></tr>
+          <tr><td>VA-VAE (DINOv3-L)</td><td><b>9.01</b><span class="rk r1">#1</span></td><td>2.44<span class="rk">#2</span></td></tr>
+          <tr class="ours"><td>LDM + PR (Ours)</td><td>11.59<span class="rk">#3</span></td><td><b>2.28</b><span class="rk r1">#1</span></td></tr>
+        </tbody>
+      </table></div>
+      <p class="cap">ImageNet 256×256, class-conditional, LightningDiT-XL/1, same budget for all (20 epochs for VAE, 80 epochs for DiT), evaluated over 50K samples.</p>
+    </div>
+  </div>
+</header>
+
+<main>
+<section id="tldr" class="wide stack">
+  <p class="eyebrow">TL;DR</p>
+  <p>Under exact score estimation, CFG sampling for a condition \(c\) follows the guided score</p>
+  <div class="eqband">\[
+    \underbrace{\nabla_{z_t}\log p_t(z_t)}_{\text{marginal score}}
+    \;+\;\underbrace{\omega\,\nabla_{z_t}\log p_t(c\mid z_t)}_{\text{guidance term}},\qquad \omega>1 .
+  \]</div>
+  <div class="cards">
+    <article class="card"><p class="k">Problem</p><h3>Diffusability is not enough.</h3>
+      <p>Beyond how easily the marginal distribution \(p_t(z_t)\) can be modeled, the guided score also depends on how conditions are arranged in the noise-corrupted latent space. Viewing conditions as discrete classes, we term this arrangement <em>class geometry</em> and ask which geometry works well with CFG.</p></article>
+    <article class="card"><p class="k">Analysis</p><h3>Separate centers, shrink spread.</h3>
+      <p>Under a Gaussian class model, the oracle CFG correction contrasts the target class with its competitors. Larger inter-class separation and smaller intra-class spread make classes more distinguishable under noise. An ideal noisy-posterior objective captures this preference, with its gradient aligned with the correction.</p></article>
+    <article class="card"><p class="k">Solution</p><h3>Prototype Regularization.</h3>
+      <p>The ideal objective cannot be optimized directly, since the latent space itself is being learned. We introduce Prototype Regularization (PR), a tractable surrogate that shapes class geometry with a prototype classifier on clean latents. It generalizes to cluster pseudo-labels, video latents, and continuous conditions.</p></article>
+  </div>
+</section>
+
+<section id="analysis" class="col stack">
+  <p class="eyebrow">Analysis</p>
+  <h2>Why class geometry matters for CFG</h2>
+  <p class="note">Setup: rectified flow interpolates \(z_t=t\,z+(1-t)\,\epsilon\), \(\epsilon\sim\mathcal N(0,I)\), with noise at \(t=0\), clean data at \(t=1\).</p>
+
+  <div class="step" id="s1"><span class="n">1</span><div class="stack">
+    <h3>What does CFG actually add?</h3>
+    <p>CFG amplifies the displacement between the conditional and unconditional predictions. For the Bayes-optimal predictors \(v_c^\star=\mathbb E[v\mid z_t,t,C=c]\) and \(v_u^\star=\mathbb E[v\mid z_t,t]\), substituting \(v=(z-z_t)/(1-t)\) turns that displacement into a difference of posterior means of the clean latent:</p>
+    <div class="eq"><div class="body">\[ g_c^\star(z_t,t) := v_c^\star - v_u^\star = \frac{\mathbb E[z\mid z_t,t,C=c]-\mathbb E[z\mid z_t,t]}{1-t}. \]</div><span class="no">(1)</span></div>
+    <p class="take">The correction is how far knowing the class moves the estimate of the clean latent. To trace its dependencies, we need a model where it can be computed in closed form.</p>
+  </div></div>
+
+  <div class="step" id="s2"><span class="n">2</span><div class="stack">
+    <h3>When is the correction large, and when does it vanish?</h3>
+    <p>Take \(K\) classes with Gaussian priors \(p(z\mid c)=\mathcal N(z;\mu_c,\sigma^2 I)\) sharing one intra-class variance \(\sigma^2\). Writing \(q_j=\Pr(C=j\mid z_t,t)\) for the noisy class posterior, Eq. 1 becomes</p>
+    <div class="eq"><div class="body">\[ g_c^\star(z_t,t) = \frac{1-t}{(1-t)^2+t^2\class{cs}{\sigma^2}}\sum_{j\neq c} \class{cw}{q_j}\,\class{cc}{(\mu_c-\mu_j)}. \]</div><span class="no">(2)</span></div>
+    <p class="legend-inline"><span class="lc">class contrast \(\mu_c-\mu_j\)</span><span class="lw">posterior weight \(q_j\)</span><span class="ls">intra-class variance \(\sigma^2\)</span></p>
+    <p class="take">The correction sums displacements from each competitor mean toward the target mean, weighted by that competitor's posterior \(\class{cw}{q_j}\) (i.e., how confusable it remains at the noisy state \(z_t\)). Once the target class dominates the posterior (\(q_c\to 1\)), all competitor weights vanish, and so does the correction.</p>
+  </div></div>
+
+  <div class="step" id="s3"><span class="n">3</span><div class="stack">
+    <h3>Which geometry keeps classes distinguishable under noise?</h3>
+    <p>Step 2 says the correction lives as long as the posterior is uncertain. How soon it becomes certain depends on how far apart classes remain once noise is added. Since \(p(z_t\mid c)=\mathcal N\big(z_t;\,t\mu_c,\,(t^2\sigma^2+(1-t)^2)I\big)\), the squared standardized distance between two classes is</p>
+    <div class="eq"><div class="body">\[ \delta_{cj}^2(t) = \frac{t^2\,\class{cc}{\|\mu_c-\mu_j\|^2}}{t^2\class{cs}{\sigma^2}+(1-t)^2}. \]</div><span class="no">(3)</span></div>
+    <p>To separate geometry from scale, fix reference means \(\mu_c^{\text{ref}}\in\mathbb R^d\) with \(\mathbb E_C[\mu_C^{\text{ref}}]=0\) and \(\mathbb E_C\|\mu_C^{\text{ref}}\|^2=d\), and vary only how a fixed total variance \(d\) is split:</p>
+    <div class="eq"><div class="body">\[ \class{cc}{\mu_c(\alpha)}=\sqrt{\alpha}\,\mu_c^{\text{ref}},\qquad \class{cs}{\sigma^2(\alpha)}=1-\alpha,\qquad \alpha\in(0,1). \]</div><span class="no">(4)</span></div>
+    <p class="take">Raising \(\alpha\) moves variance from intra-class \((1-\alpha)d\) to inter-class \(\alpha d\), pushing centers apart and shrinking intra-class spread. This increases \(\delta^2_{cj}(t)\) at every \(t\), making classes more distinguishable under noise, so the target posterior concentrates earlier.</p>
+  </div></div>
+</section>
+
+<section class="wide" style="padding-top:2rem">
+  <figure class="widget" id="toy">
+    <p class="eyebrow">Toy Example</p>
+    <h3 style="margin-top:.3rem">Watch the correction appear and vanish</h3>
+    <p class="note" style="margin-top:.4rem">Setup: six Gaussian classes; the top one is the target. Both rows share the same samples and noise; only the geometry \(\alpha\) differs (Eq. 4). Distances are scaled to mimic a high-dimensional latent; for intuition only.</p>
+    <div class="tw" id="tw">
+      <div class="tw-corner"></div>
+      <div class="tw-head" style="grid-area:h1"><b>① Clean latents</b><span>Target class highlighted. Larger α: farther-apart centers, smaller spread.</span></div>
+      <div class="tw-head" style="grid-area:h2"><b>② Noised at t</b><span>Shade: target posterior \(q_c\). Arrows: \(g_c^\star\) on target samples, shared scale.</span></div>
+      <div class="tw-head" style="grid-area:h3"><b>③ Along the trajectory</b><span>Quantities are averaged over all target samples. Dashed line marks the current t.</span></div>
+      <div class="tw-label base" style="grid-area:l1"><b>Entangled</b><code id="a1-out">α = 0.001</code></div>
+      <canvas class="pane" id="c1a" style="grid-area:a1" aria-label="Clean latents, entangled geometry"></canvas>
+      <canvas class="pane" id="c1b" style="grid-area:b1" tabindex="0" aria-label="Noised latents, entangled geometry"></canvas>
+      <div class="tw-label" style="grid-area:l2"><b>Adjustable</b><output id="a2-out" for="a2">α = 0.030</output>
+        <label class="note" for="a2" style="font-size:.78rem">drag to change α</label>
+        <input type="range" id="a2" min="-4" max="-0.301" step="0.01" value="-1.52"></div>
+      <canvas class="pane" id="c2a" style="grid-area:a2" aria-label="Clean latents, adjustable geometry"></canvas>
+      <canvas class="pane" id="c2b" style="grid-area:b2" tabindex="0" aria-label="Noised latents, adjustable geometry"></canvas>
+      <div class="tw-cv"><canvas id="tw-curves" aria-label="Expected target posterior and correction strength along t for both geometries"></canvas></div>
+    </div>
+    <div class="tw-bar">
+      <button type="button" class="play" id="play" aria-pressed="false">▶ Play denoising</button>
+      <div class="tctrl"><label for="tl">t</label><input type="range" id="tl" min="-6.9" max="6.9" step="0.01" value="-1.73"><output id="t-out" for="tl"></output></div>
+      <label class="tog"><input type="checkbox" id="probe"> Show per-competitor terms at a probe point</label>
+    </div>
+    <div class="tw-notes">
+      <div><h4>Look for</h4>Press play. With larger α, arrows are long while the class is uncertain, then vanish as the shade fills in. When entangled, arrows stay short and the shade fills only partially.</div>
+      <div><h4>What it means</h4>Under this model, CFG acts only while the class is uncertain. A separated geometry gives a stronger correction and settles the class earlier in denoising. PR is designed to build this geometry.</div>
+    </div>
+  </figure>
+</section>
+
+<section class="col stack" style="padding-top:2.4rem">
+  <div class="step" id="s4"><span class="n">4</span><div class="stack">
+    <h3>How do we turn this into a training objective?</h3>
+    <p>To keep classes distinguishable under noise, we would ideally minimize the class uncertainty left at noise level \(t\), measured by the cross-entropy of the true noisy class posterior:</p>
+    <div class="eq"><div class="body">\[ \mathcal L_{\text{post}}(t)=\mathbb E_{z,c,\epsilon}\big[-\log q_c\big(tz+(1-t)\epsilon,\,t\big)\big]=H(C\mid Z_t). \]</div><span class="no">(5)</span></div>
+    <p>Holding the posterior function \(q_c\) fixed, the per-sample descent direction on the clean latent \(z\) is proportional to the oracle correction \(g_c^\star\):</p>
+    <div class="eq"><div class="body">\[ \nabla_z\log q_c\big(tz+(1-t)\epsilon,\,t\big)=t\,\nabla_{z_t}\log q_c(z_t,t)=\frac{t^2}{1-t}\,g_c^\star(z_t,t),\quad t\in(0,1). \]</div><span class="no">(6)</span></div>
+    <p>To turn Eq. 5 into a practical training objective, we also need to choose how \(z_t\) is sampled. A natural choice follows the training trajectory: drawing \(t\) from a time distribution \(\rho\) gives \(\mathcal L_\rho=\mathbb E_{t\sim\rho}[\mathcal L_{\text{post}}(t)]\), with \(\rho\) ranging from the whole trajectory (uniform \(\rho\)) to clean latents only (\(\rho\) concentrated at \(t=1\)). Within the family of class geometries defined in Eq. 4, every \(\mathcal L_\rho\) is non-increasing in \(\alpha\), so all of them favor the same geometry: more separated and compact classes.</p>
+    <p class="take">The objective is aligned with CFG at two levels: (1) its per-sample gradient follows CFG's correction (Eq. 6), and (2) minimizing any \(\mathcal L_\rho\) promotes the separated, compact geometry that strengthens CFG (Step 3). In practice, one then needs to choose \(\rho\) and approximate \(q_c\).</p>
+  </div></div>
+</section>
+
+<section id="method" class="col stack">
+  <p class="eyebrow">Method</p>
+  <h2>Prototype Regularization</h2>
+  <p>\(\mathcal L_\rho\) cannot be minimized directly: the true posterior \(q_c\) is defined by the latent distribution we are still learning. Since the diffusion model trains in the latent space fixed by the autoencoder, PR instead optimizes a surrogate during autoencoder training, with the following choices of \(\rho\) and an approximation of \(q_c\):</p>
+  <ol class="simp">
+    <li><b>Clean-only supervision</b>: PR directly regularizes the noise-free latents (i.e., it takes \(\rho\) as a point mass at \(t=1\)), so \(\mathcal L_\rho\) reduces to \(H(C\mid Z)\), the class uncertainty of clean latents.</li>
+    <li><b>A prototype classifier</b> PR approximates the true posterior \(q_c\) with a softmax over cosine similarities to learnable class prototypes, mirroring the Gaussian class posterior with prototypes as class means.</li>
+  </ol>
+</section>
+
+<section class="col" style="padding-top:1.4rem">
+  <div class="diagram">
+    <svg viewBox="0 0 780 232" role="img" aria-label="PR pipeline: encoder, latent, decoder for reconstruction; latent pooled, normalized and compared with prototypes for the PR loss">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" style="fill:var(--muted)"/></marker>
+        <marker id="ahp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" style="fill:var(--accent)"/></marker>
+      </defs>
+      <rect class="dg-box" x="10" y="22" width="70" height="52" rx="8"/><text class="dg-t" x="45" y="53" text-anchor="middle">x</text>
+      <path class="dg-a" d="M80 48H112" marker-end="url(#ah)"/>
+      <rect class="dg-box" x="114" y="22" width="104" height="52" rx="8"/><text class="dg-t" x="166" y="53" text-anchor="middle">Encoder</text>
+      <path class="dg-a" d="M218 48H250" marker-end="url(#ah)"/>
+      <rect class="dg-box" x="252" y="22" width="120" height="52" rx="8" style="stroke:var(--ink)"/><text class="dg-t" x="312" y="45" text-anchor="middle">latent z</text><text class="dg-s" x="312" y="63" text-anchor="middle">d<tspan baseline-shift="sub" font-size="9">c</tspan> × h × w</text>
+      <path class="dg-a" d="M372 48H404" marker-end="url(#ah)"/>
+      <rect class="dg-box" x="406" y="22" width="104" height="52" rx="8"/><text class="dg-t" x="458" y="53" text-anchor="middle">Decoder</text>
+      <path class="dg-a" d="M510 48H542" marker-end="url(#ah)"/>
+      <rect class="dg-box" x="544" y="22" width="70" height="52" rx="8"/><text class="dg-t" x="579" y="53" text-anchor="middle">x̂</text>
+      <text class="dg-loss2" x="632" y="45">ℒ<tspan baseline-shift="sub" font-size="11">LDM</tspan></text><text class="dg-s" x="632" y="63">recon, KL, LPIPS, GAN</text>
+      <path class="dg-ap" d="M312 74V134" marker-end="url(#ahp)"/>
+      <rect class="dg-pr" x="252" y="136" width="120" height="58" rx="8"/><text class="dg-t" x="312" y="160" text-anchor="middle">AvgPool</text><text class="dg-s" x="312" y="179" text-anchor="middle">z̄ ∈ ℝ<tspan baseline-shift="super" font-size="9">d</tspan><tspan baseline-shift="super" font-size="7" dy="2">c</tspan></text>
+      <path class="dg-ap" d="M372 165H404" marker-end="url(#ahp)"/>
+      <rect class="dg-pr" x="406" y="136" width="104" height="58" rx="8"/><text class="dg-t" x="458" y="160" text-anchor="middle">ℓ2 normalize</text><text class="dg-s" x="458" y="179" text-anchor="middle">z̃ = z̄ / ‖z̄‖</text>
+      <path class="dg-ap" d="M510 165H542" marker-end="url(#ahp)"/>
+      <rect class="dg-pr" x="544" y="136" width="128" height="58" rx="8"/><text class="dg-t" x="608" y="160" text-anchor="middle">cos(z̃, p̃ⱼ) / τ</text><text class="dg-s" x="608" y="179" text-anchor="middle">K prototypes</text>
+      <path class="dg-ap" d="M672 165H700" marker-end="url(#ahp)"/>
+      <text class="dg-loss" x="704" y="161">ℒ<tspan baseline-shift="sub" font-size="11">PR</tspan></text><text class="dg-s" x="704" y="179">CE with c</text>
+      <text class="dg-s" x="140" y="160">PR branch</text><text class="dg-s" x="140" y="177">training only</text>
+    </svg>
+  </div>
+</section>
+
+<section class="col stack" style="padding-top:1.6rem">
+  <p>More concretely, PR spatially pools the latent \(z\in\mathbb R^{d_c\times h\times w}\) to \(\bar z=\mathrm{AvgPool}(z)\in\mathbb R^{d_c}\), gives each class a learnable prototype \(p_j\in\mathbb R^{d_c}\), and normalizes both (\(\tilde z=\bar z/\|\bar z\|\), \(\tilde p_j=p_j/\|p_j\|\)):</p>
+  <div class="eq"><div class="body">\[ \pi_j(z)=\frac{\exp(\tilde z^\top\tilde p_j/\tau)}{\sum_{k=1}^{K}\exp(\tilde z^\top\tilde p_k/\tau)},\qquad \mathcal L_{\text{PR}}=-\log\pi_c(z). \]</div><span class="no">(7)</span></div>
+  <p>With equal priors and equal-norm means, the clean Gaussian posterior is \(q_j\propto\exp(\mu_j^\top z/\sigma^2)\). PR adopts the same softmax form on normalized features, so its negative gradient mirrors Eq. 2:</p>
+  <div class="mirror">
+    <div><h4>Oracle CFG correction, Eq. 2</h4>\[ g_c^\star\;\propto\;\sum_{j\neq c}\class{cw}{q_j}\,\class{cc}{(\mu_c-\mu_j)} \]</div>
+    <div><h4>PR gradient, Eq. 8</h4>\[ -\nabla_{\tilde z}\mathcal L_{\text{PR}}=\frac1\tau\sum_{j\neq c}\class{cw}{\pi_j}\,\class{cc}{(\tilde p_c-\tilde p_j)} \]</div>
+  </div>
+  <p class="note">Prototypes \(\tilde p_j\) replace class means \(\mu_j\), and classifier probabilities \(\pi_j\) replace posteriors \(q_j\): each latent is pulled toward its target and away from each competitor in proportion to its probability.</p>
+  <p>Three design choices make PR work in practice:</p>
+  <div class="choices">
+    <div><b>Clean-only supervision</b>Supervising all noise levels (uniform \(\rho\)) over-smooths the latent's spatial variation. Supervising only clean latents avoids this and performs best.</div>
+    <div><b>Pool before classifying</b>PR only regularizes the pooled latent \(\bar z\), keeping \(z - \bar z\) free to encode spatial variation needed for reconstruction (i.e., layout and detail).</div>
+    <div><b>Cosine, not linear</b>A linear classifier can lower the loss by inflating latent norms instead of separating classes; normalization rules out this shortcut.</div>
+  </div>
+  <p>The autoencoder is trained with</p>
+  <div class="eq"><div class="body">\[ \mathcal L=\mathcal L_{\text{LDM}}+\lambda_{\text{PR}}\,\mathcal L_{\text{PR}}, \]</div><span class="no">(9)</span></div>
+  <p>where \(\lambda_{\text{PR}}\) is set adaptively by balancing encoder last-layer gradient norms against the reconstruction term. PR shapes the latent geometry from a partition of the data, which can come from class labels or cluster pseudo-labels. The diffusion model can later be conditioned on other signals, discrete or continuous.</p>
+<pre class="code"><span class="k">class</span> PrototypeReg(nn.Module):
+    <span class="k">def</span> __init__(self, num_classes, channels, tau):
+        super().__init__()
+        self.protos = nn.Parameter(torch.randn(num_classes, channels))
+        self.tau = tau
+
+    <span class="k">def</span> forward(self, z, y):                               <span class="c"># z: (B, C, H, W), y: (B,)</span>
+        z_tilde = F.normalize(z.mean(dim=(2, 3)), dim=-1)  <span class="c"># latents: pool + normalize</span>
+        p = F.normalize(self.protos, dim=-1)               <span class="c"># prototypes: normalize</span>
+        logits = z_tilde @ p.t() / self.tau                <span class="c"># cosine similarity / tau</span>
+        <span class="k">return</span> F.cross_entropy(logits, y)
+
+<span class="c"># autoencoder step: lam_pr is adaptive (gradient-norm balanced)</span>
+loss = loss_ldm + lam_pr * pr(z, labels)</pre>
+</section>
+
+<section id="results" class="wide stack">
+  <p class="eyebrow">Results</p>
+  <h2>Class geometry governs how much a model gains from guidance</h2>
+  <p class="lede col" style="margin-inline:0">Setup: ImageNet 256×256 on the VA-VAE codebase, using a convolution-based autoencoder with 32×16×16 latents, LightningDiT-XL/1, 20 epochs for VAE and 80 epochs for DiT. Guided numbers use the best guidance scale \(\omega^\star\) from a 5K-sample sweep; metrics evaluated over 50K samples.</p>
+
+  <h3 style="margin-top:.6rem">Main comparison</h3>
+  <div class="tbl"><table>
+    <thead>
+      <tr><th>Method</th><th>Purity@10 ↑</th><th>Steps/s ↑</th><th>gFID w/o CFG ↓</th><th>gFID w/ CFG ↓</th><th>IS ↑</th><th>Recall ↑</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>LDM</td><td>0.020<span class="rk">#4</span></td><td><b>2.16</b></td><td>13.09<span class="rk">#4</span></td><td>3.31<span class="rk">#4</span></td><td>237.73</td><td>0.504</td></tr>
+      <tr><td>VA-VAE (DINOv3-B)</td><td>0.053<span class="rk">#3</span></td><td>1.65</td><td>9.76<span class="rk">#2</span></td><td>2.64<span class="rk">#3</span></td><td>236.02</td><td>0.557</td></tr>
+      <tr><td>VA-VAE (DINOv3-L)</td><td>0.071<span class="rk">#2</span></td><td>1.61</td><td><b>9.01</b><span class="rk r1">#1</span></td><td>2.44<span class="rk">#2</span></td><td>242.17</td><td>0.564</td></tr>
+      <tr class="ours"><td>LDM + PR (Ours)</td><td><b>0.279</b><span class="rk r1">#1</span></td><td>2.13</td><td>11.59<span class="rk">#3</span></td><td><b>2.28</b><span class="rk r1">#1</span></td><td><b>269.85</b></td><td><b>0.585</b></td></tr>
+    </tbody>
+  </table></div>
+  <div class="tw3">
+    <div><b>Reconstruction is comparable.</b>rFID 0.277 vs. 0.308 (LDM) and 0.275 (VA-VAE, DINOv3-L); PSNR within 0.15 dB and LPIPS within 0.002 of the best.</div>
+    <div><b>Guided ranking follows Purity.</b>Purity@10, the share of a latent's 10 nearest neighbors that share its class, ranks methods as guided gFID does; unguided gFID does not.</div>
+    <div><b>Negligible overhead.</b>Stage-1 throughput stays at 2.13 steps/s (LDM: 2.16), while VA-VAE's representation alignment costs about 25%.</div>
+  </div>
+
+  <h3 style="margin-top:1.4rem">Why does PR gain more from guidance?</h3>
+  <figure>
+    <div class="plate"><img src="assets/fig2.png" alt="Figure 2: energy allocation, target-class distinguishability along the trajectory, and CFG sweep for LDM, VA-VAE and LDM+PR"></div>
+  </figure>
+  <div class="tw3">
+    <div><b>(a) Energy shifts to inter-class variance.</b>Over 90% of LDM's energy is intra-class. VA-VAE shifts much of it to a shared global mean; PR moves it to inter-class variance.</div>
+    <div><b>(b) The class stays identifiable under noise.</b>PR's target posterior is substantially higher along the trajectory, on noised validation latents and actual CFG samples, consistent with Step 3.</div>
+    <div><b>(c) It benefits from stronger guidance.</b>PR peaks at a larger \(\omega^\star\) and degrades more slowly beyond it, giving a wider near-optimal range of guidance scales.</div>
+  </div>
+
+  <h3 style="margin-top:1.4rem">Is it really the geometry? Transplanting class centers into LDM</h3>
+  <p class="col" style="margin-inline:0">Replace each LDM class center with a reference one, \(z'=z-\mu_c^{\text{LDM}}+\mu_c^{\text{Ref}}\), keeping intra-class deviations, then retrain stage 2. References are PR centers or norm-aligned random directions.</p>
+  <div class="tbl"><table class="tp">
+    <thead>
+      <tr class="grp"><th></th><th></th><th></th><th colspan="2">gFID@50K ↓</th><th></th><th colspan="2">Share of PR's gain recovered</th></tr>
+      <tr><th>Latent</th><th>Centers</th><th>Shape</th><th>w/o CFG</th><th>w/ CFG</th><th>\(\omega^\star\)</th><th>w/o CFG</th><th>w/ CFG</th></tr>
+    </thead>
+    <tbody>
+      <tr class="ours"><td>LDM + PR</td><td>native</td><td></td><td>11.59</td><td>2.28</td><td>2.5</td><td class="share"><span class="bar" style="width:4.5rem"></span>100%</td><td class="share"><span class="bar" style="width:4.5rem"></span>100%</td></tr>
+      <tr><td>LDM</td><td>native</td><td></td><td>13.09</td><td>3.31</td><td>2.0</td><td class="share">0%</td><td class="share">0%</td></tr>
+      <tr><td>LDM</td><td>LDM, rescaled</td><td>32×16×16</td><td>12.58</td><td>2.89</td><td>2.0</td><td class="share"><span class="bar" style="width:1.53rem"></span>34%</td><td class="share"><span class="bar" style="width:1.84rem"></span>41%</td></tr>
+      <tr><td>LDM</td><td>PR</td><td>32×16×16</td><td>12.79</td><td>2.63</td><td>3.5</td><td class="share"><span class="bar" style="width:.9rem"></span>20%</td><td class="share"><span class="bar" style="width:2.97rem"></span>66%</td></tr>
+      <tr><td>LDM</td><td>PR</td><td>32×1×1</td><td>12.65</td><td><b>2.52</b></td><td>4.0</td><td class="share"><span class="bar" style="width:1.31rem"></span>29%</td><td class="share"><span class="bar" style="width:3.47rem"></span>77%</td></tr>
+      <tr><td>LDM</td><td>random dirs, PR norms</td><td>32×1×1</td><td>13.74</td><td>3.16</td><td>4.5</td><td class="share"><span class="bar neg" style="width:1.95rem"></span>−43%</td><td class="share"><span class="bar" style="width:.66rem"></span>15%</td></tr>
+    </tbody>
+  </table></div>
+  <p class="cap">Share recovered = (LDM − row) / (LDM − LDM+PR), computed from the gFID columns. All spaces using PR's centers or norms reach a larger \(\omega^\star\) than LDM.</p>
+  <div class="tw3">
+    <div><b>Arrangement, not energy alone.</b>At matched energy, PR centers beat LDM's own centers (66% vs. 41%, full shape) and random directions (77% vs. 15%, pooled).</div>
+    <div><b>A global channel offset.</b>Pooled centers beat spatially resolved ones (2.52 vs. 2.63), so the useful class signal is mainly a channel-wise offset.</div>
+    <div><b>Intra-class spread matters too.</b>Transplants recover most of the guided gain but little of the unguided one; they move centers and leave intra-class spread untouched.</div>
+  </div>
+
+  <h3 style="margin-top:1.4rem">Does PR generalize?</h3>
+  <div class="gen">
+    <article class="grow">
+      <div class="txt">
+        <h4>Cluster pseudo-labels</h4>
+        <div class="big">2.34<small>Guided gFID with DINOv3-L clusters as PR labels, achieving 94% of the GT label gain</small></div>
+        <p>PR is applied with spherical K-means clusters (K = 1000) of DINOv3-L [CLS] tokens; the PR labels need not match the stage-2 condition.</p>
+      </div>
+      <div class="tbl"><table class="ctr">
+        <thead><tr><th>PR labels (stage 1)</th><th>Condition: ground truth</th><th>Condition: DINO clusters</th></tr></thead>
+        <tbody>
+          <tr><td>None</td><td>3.31 / 13.09</td><td>3.58 / 13.31</td></tr>
+          <tr class="ours"><td>Ground truth</td><td><b>2.28</b> / 11.59</td><td><b>2.42</b> / 11.82</td></tr>
+          <tr class="ours"><td>DINO clusters</td><td>2.34 / <b>11.44</b></td><td>2.55 / <b>11.47</b></td></tr>
+        </tbody></table><p class="cap">Guided / unguided gFID.</p></div>
+    </article>
+    <article class="grow">
+      <div class="txt">
+        <h4>Video latents</h4>
+        <div class="big">152.7 → 140.1<small>FVD with CFG on UCF-101</small></div>
+        <p>LeanVAE fine-tuned with PR (pooling over time and space), then Latte-XL/2 fine-tuned on top. Without CFG, FVD drops 287.3 → 275.7; action accuracy stays on par.</p>
+      </div>
+      <div class="tbl"><table class="ctr">
+        <thead><tr class="grp"><th></th><th colspan="2">w/ CFG</th><th colspan="2">w/o CFG</th></tr>
+          <tr><th>Stage 1 / Stage 2</th><th>FVD ↓</th><th>Acc ↑</th><th>FVD ↓</th><th>Acc ↑</th></tr></thead>
+        <tbody>
+          <tr><td>Official / Official</td><td>167.0</td><td>92.9</td><td>340.2</td><td>87.2</td></tr>
+          <tr><td>Official / Fine-tuned</td><td>161.4</td><td>98.5</td><td>302.0</td><td>92.7</td></tr>
+          <tr><td>Recon only / Fine-tuned</td><td>152.7</td><td><b>99.0</b></td><td>287.3</td><td><b>93.0</b></td></tr>
+          <tr class="ours"><td>PR / Fine-tuned</td><td><b>140.1</b></td><td>98.9</td><td><b>275.7</b></td><td><b>93.0</b></td></tr>
+        </tbody></table></div>
+    </article>
+    <article class="grow">
+      <div class="txt">
+        <h4>Continuous Conditions (Text-to-image)</h4>
+        <div class="big">2.90 → 2.35<small>gFID (val) with CFG, conditioned on CLIP-L text embeddings of image captions</small></div>
+        <p>PR is best on every guided metric. PR shapes latent geometry with categorical labels (e.g., GT labels, DINO clusters), yet beats continuous-alignment baselines.</p>
+      </div>
+      <div class="tbl"><table class="ctr">
+        <thead><tr class="grp"><th></th><th colspan="3">w/ CFG</th><th colspan="3">w/o CFG</th></tr>
+          <tr><th>Method</th><th>gFID train ↓</th><th>gFID val ↓</th><th>CLIP ↑</th><th>gFID train ↓</th><th>gFID val ↓</th><th>CLIP ↑</th></tr></thead>
+        <tbody>
+          <tr><td>LDM</td><td>3.15</td><td>2.90</td><td>0.2775</td><td>10.38</td><td>7.52</td><td>0.2577</td></tr>
+          <tr><td>VA-VAE (DINOv3-L)</td><td>2.53</td><td>2.67</td><td>0.2814</td><td><b>8.02</b></td><td><b>5.65</b></td><td><b>0.2620</b></td></tr>
+          <tr><td>Cos. align (CLIP-L)</td><td>2.93</td><td>3.04</td><td>0.2799</td><td>9.52</td><td>6.84</td><td>0.2590</td></tr>
+          <tr><td>Cos. align (DINOv3-L)</td><td>2.86</td><td>2.78</td><td>0.2784</td><td>9.35</td><td>6.74</td><td>0.2585</td></tr>
+          <tr class="ours"><td>PR (GT labels)</td><td><b>2.51</b></td><td><b>2.35</b></td><td>0.2811</td><td>9.63</td><td>6.87</td><td>0.2570</td></tr>
+          <tr class="ours"><td>PR (CLIP-L clusters)</td><td>2.52</td><td>2.42</td><td>0.2813</td><td>10.15</td><td>7.36</td><td>0.2578</td></tr>
+          <tr class="ours"><td>PR (DINOv3-L clusters)</td><td>2.53</td><td>2.46</td><td><b>0.2818</b></td><td>9.41</td><td>6.72</td><td>0.2575</td></tr>
+        </tbody></table></div>
+    </article>
+  </div>
+</section>
+
+<section id="limits" class="col stack">
+  <p class="eyebrow">Discussions</p>
+  <ul class="lim">
+    <li><b>Unguided gap.</b> PR primarily targets guided generation. Without CFG, PR beats the LDM baseline but trails VA-VAE. This gap may stem from pooling, which leaves spatial structure unregularized. Because of this, PR can be combined with other regularizers: adding PR to VA-VAE improves both guided and unguided generation.</li>
+    <li><b>Scope of analysis.</b> The link between the posterior gradient and the Bayes-optimal CFG correction holds for any latent distribution under Gaussian forward corruption. The closed-form correction and its predictions are specific to the Gaussian class model, though PR still lowers posterior uncertainty on real latents as predicted.</li>
+    <li><b>Design space.</b> PR is one instantiation of the posterior objective, using clean-latent supervision and a pooled prototype classifier. Clean-latent supervision avoids the over-regularization of noisy supervision, while other time distributions and contrast forms remain open for exploration.</li>
+  </ul>
+</section>
+
+<section id="bibtex" class="col stack">
+  <p class="eyebrow">BibTeX</p>
+  <div class="bib">
+<pre id="bib-text">@article{placeholder2026guided,
+  title   = {Learning to Be Guided: Shaping Latent Geometry
+             for Classifier-Free Guidance},
+  author  = {One, Author and Two, Author and Three, Author and
+             Four, Author and Five, Author and Six, Author and
+             Seven, Author},
+  journal = {arXiv preprint arXiv:XXXX.XXXXX},
+  year    = {2026}
+}</pre>
+    <button type="button" id="bib-copy">Copy</button>
+  </div>
+</section>
+</main>
+<footer class="col">© 2026 The Authors. Page created with assistance from Claude.</footer>
+
+<script>
+(function(){
+  const btn=document.getElementById('bib-copy');
+  btn.addEventListener('click',()=>{
+    const pre=document.getElementById('bib-text');
+    const sel=()=>{const r=document.createRange();r.selectNodeContents(pre);const s=getSelection();s.removeAllRanges();s.addRange(r);btn.textContent='Selected'};
+    try{navigator.clipboard.writeText(pre.textContent).then(()=>{btn.textContent='Copied';setTimeout(()=>btn.textContent='Copy',1400)},sel)}catch(e){sel()}
+  });
+})();
+
+(function(){
+  const K=6, D=4096, NS=80, NARR=16, NMC=260, NT=90, A1=1e-3;
+  const LMIN=-6.9, LMAX=6.9;
+  const sig=x=>1/(1+Math.exp(-x)), logit=t=>Math.log(t/(1-t));
+  function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+  const R0=rng(11), g1=()=>{let u=0;while(u===0)u=R0();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*R0())};
+  const DIR=[...Array(K)].map((_,k)=>{const a=Math.PI/2+2*Math.PI*k/K;return[Math.cos(a),Math.sin(a)]});
+  const SX=[...Array(K)].map(()=>[...Array(NS)].map(()=>[g1(),g1(),g1(),g1()]));
+  const MC=[...Array(NMC)].map(()=>[g1(),g1(),g1(),g1()]);
+  const TG=[...Array(NT)].map((_,i)=>sig(LMIN+(LMAX-LMIN)*i/(NT-1))), LG=TG.map(logit);
+  const $=id=>document.getElementById(id);
+  const st={a2:Math.pow(10,+$('a2').value), lt:+$('tl').value, probe:false, u:[0.32,-0.42], playing:false};
+  let col={}, C1=null, C2=null, C2a=null;
+
+  const geom=a=>{const R=Math.sqrt(a*D),s=Math.sqrt(1-a);return{R,s,mu:DIR.map(d=>[d[0]*R,d[1]*R])}};
+  const s2of=(G,t)=>t*t*G.s*G.s+(1-t)*(1-t);
+  function post(x,y,t,G,s2,out){let m=-1e300;for(let j=0;j<K;j++){const dx=x-t*G.mu[j][0],dy=y-t*G.mu[j][1],l=-(dx*dx+dy*dy)/(2*s2);out[j]=l;if(l>m)m=l}
+    let Z=0;for(let j=0;j<K;j++){out[j]=Math.exp(out[j]-m);Z+=out[j]}for(let j=0;j<K;j++)out[j]/=Z;return out}
+  function gvec(t,G,s2,q){const p=(1-t)/s2;let gx=0,gy=0;for(let j=1;j<K;j++){gx+=q[j]*(G.mu[0][0]-G.mu[j][0]);gy+=q[j]*(G.mu[0][1]-G.mu[j][1])}return[p*gx,p*gy]}
+  function curve(a){const G=geom(a),q=new Float64Array(K),Q=[],Gm=[];
+    for(const t of TG){const s2=s2of(G,t);let qa=0,ga=0;
+      for(const m of MC){post(t*(G.mu[0][0]+G.s*m[0])+(1-t)*m[2],t*(G.mu[0][1]+G.s*m[1])+(1-t)*m[3],t,G,s2,q);qa+=q[0];const g=gvec(t,G,s2,q);ga+=Math.hypot(g[0],g[1])}
+      Q.push(qa/NMC);Gm.push(ga/NMC/Math.sqrt(D))}
+    return{Q,G:Gm,peak:Math.max(...Gm)*Math.sqrt(D)}}
+  const fmtA=a=>a<0.01?String(+a.toPrecision(2)):a.toFixed(3);
+
+  function toRGB(c){const x=document.createElement('canvas').getContext('2d');x.fillStyle='#000';x.fillStyle=c;x.fillRect(0,0,1,1);const d=x.getImageData(0,0,1,1).data;return[d[0],d[1],d[2]]}
+  function readTheme(){const cs=getComputedStyle(document.documentElement),v=n=>cs.getPropertyValue(n).trim();
+    col={bg:v('--surface'),ink:v('--ink'),muted:v('--muted'),line:v('--line'),accent:v('--accent'),mono:v('--font-mono')};col.bgR=toRGB(col.bg);col.acR=toRGB(col.accent)}
+  function fit(cv){const dpr=Math.min(window.devicePixelRatio||1,2),r=cv.getBoundingClientRect(),w=Math.max(10,Math.round(r.width*dpr)),h=Math.max(10,Math.round(r.height*dpr));if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h}return dpr}
+  function arrow(ctx,x0,y0,x1,y1,w,color,head){const dx=x1-x0,dy=y1-y0,L=Math.hypot(dx,dy);if(L<1.5)return;ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=w;
+    const h=Math.min(head,L*0.55),ux=dx/L,uy=dy/L;ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1-ux*h*0.7,y1-uy*h*0.7);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x1-ux*h-uy*h*0.45,y1-uy*h+ux*h*0.45);ctx.lineTo(x1-ux*h+uy*h*0.45,y1-uy*h-ux*h*0.45);ctx.closePath();ctx.fill()}
+  function centers(ctx,P,G,t,dpr){for(let k=0;k<K;k++){const [X,Y]=P(t*G.mu[k][0],t*G.mu[k][1]);ctx.beginPath();ctx.arc(X,Y,(k?4.5:6)*dpr,0,7);ctx.fillStyle=k?col.bg:col.accent;ctx.fill();ctx.lineWidth=(k?1.5:2.5)*dpr;ctx.strokeStyle=k?col.muted:col.bg;ctx.stroke()}}
+
+  function drawClean(cv,a){const dpr=fit(cv),W=cv.width,ctx=cv.getContext('2d'),G=geom(a),E=(G.R+3*G.s)*1.08,P=(x,y)=>[(x/E*0.5+0.5)*W,(0.5-y/E*0.5)*W];
+    ctx.fillStyle=col.bg;ctx.fillRect(0,0,W,W);
+    for(let k=K-1;k>=0;k--){ctx.fillStyle=k?col.muted:col.ink;ctx.globalAlpha=k?0.45:0.85;const r=(k?1.7:2.1)*dpr;
+      for(const e of SX[k]){const [X,Y]=P(G.mu[k][0]+G.s*e[0],G.mu[k][1]+G.s*e[1]);ctx.beginPath();ctx.arc(X,Y,r,0,7);ctx.fill()}}
+    ctx.globalAlpha=1;centers(ctx,P,G,1,dpr)}
+
+  const off=document.createElement('canvas');
+  function drawNoised(cv,a,t,gref){const dpr=fit(cv),W=cv.width,ctx=cv.getContext('2d'),G=geom(a),s2=s2of(G,t),E=(t*G.R+3*Math.sqrt(s2))*1.08,P=(x,y)=>[(x/E*0.5+0.5)*W,(0.5-y/E*0.5)*W],q=new Float64Array(K);
+    const res=Math.min(120,Math.round(W/3));off.width=res;off.height=res;const o=off.getContext('2d'),img=o.createImageData(res,res),b=col.bgR,c=col.acR;
+    for(let py=0;py<res;py++)for(let px=0;px<res;px++){post(((px+0.5)/res*2-1)*E,-((py+0.5)/res*2-1)*E,t,G,s2,q);const m=0.6*Math.max(0,(q[0]-1/K)/(1-1/K)),i=(py*res+px)*4;
+      img.data[i]=b[0]+(c[0]-b[0])*m;img.data[i+1]=b[1]+(c[1]-b[1])*m;img.data[i+2]=b[2]+(c[2]-b[2])*m;img.data[i+3]=255}
+    o.putImageData(img,0,0);ctx.imageSmoothingEnabled=true;ctx.drawImage(off,0,0,W,W);
+    const pos=(k,e)=>[t*(G.mu[k][0]+G.s*e[0])+(1-t)*e[2],t*(G.mu[k][1]+G.s*e[1])+(1-t)*e[3]];
+    for(let k=K-1;k>=0;k--){ctx.fillStyle=k?col.muted:col.ink;ctx.globalAlpha=k?0.4:0.85;const r=(k?1.6:2.1)*dpr;
+      for(const e of SX[k]){const [X,Y]=P(...pos(k,e));ctx.beginPath();ctx.arc(X,Y,r,0,7);ctx.fill()}}
+    ctx.globalAlpha=1;centers(ctx,P,G,t,dpr);
+    const S=W*0.15/gref,cap=W*0.22;
+    for(let i=0;i<NARR;i++){const [x,y]=pos(0,SX[0][i]);post(x,y,t,G,s2,q);const g=gvec(t,G,s2,q),m=Math.hypot(g[0],g[1]);if(m<=0)continue;const L=Math.min(cap,m*S),[X,Y]=P(x,y);
+      arrow(ctx,X,Y,X+g[0]/m*L,Y-g[1]/m*L,1.7*dpr,col.ink,6*dpr)}
+    if(st.probe){const px=st.u[0]*E,py=st.u[1]*E,[X,Y]=P(px,py);post(px,py,t,G,s2,q);const pre=(1-t)/s2;let gx=0,gy=0;
+      for(let j=1;j<K;j++){const vx=pre*q[j]*(G.mu[0][0]-G.mu[j][0]),vy=pre*q[j]*(G.mu[0][1]-G.mu[j][1]);gx+=vx;gy+=vy;if(q[j]>0.01){ctx.globalAlpha=0.9;arrow(ctx,X,Y,X+vx*S,Y-vy*S,2*dpr,col.muted,7*dpr)}}
+      ctx.globalAlpha=1;const gm=Math.hypot(gx,gy),sc=gm*S>cap?cap/gm:S;arrow(ctx,X,Y,X+gx*sc,Y-gy*sc,3*dpr,col.accent,10*dpr);
+      ctx.beginPath();ctx.arc(X,Y,8*dpr,0,7);ctx.lineWidth=2.2*dpr;ctx.strokeStyle=col.ink;ctx.stroke()}
+  }
+
+  function drawCurves(t){const cv=$('tw-curves'),dpr=fit(cv),W=cv.width,H=cv.height,ctx=cv.getContext('2d');ctx.clearRect(0,0,W,H);
+    const fs=10.5*dpr;ctx.font=fs+'px '+col.mono;const padL=34*dpr,padR=8*dpr,top=22*dpr,bot=18*dpr,gap=22*dpr,ph=(H-top-bot-gap)/2,X=l=>padL+(l-LMIN)/(LMAX-LMIN)*(W-padL-padR);
+    ctx.textAlign='left';ctx.lineWidth=2*dpr;
+    ctx.strokeStyle=col.muted;ctx.beginPath();ctx.moveTo(padL,8*dpr);ctx.lineTo(padL+16*dpr,8*dpr);ctx.stroke();ctx.fillStyle=col.muted;ctx.fillText('α = '+fmtA(A1),padL+20*dpr,12*dpr);
+    const x2=padL+W*0.42;ctx.strokeStyle=col.accent;ctx.lineWidth=2.6*dpr;ctx.beginPath();ctx.moveTo(x2,8*dpr);ctx.lineTo(x2+16*dpr,8*dpr);ctx.stroke();ctx.fillStyle=col.accent;ctx.fillText('α = '+fmtA(st.a2),x2+20*dpr,12*dpr);
+    const gmax=Math.max(...C1.G,...C2.G)*1.1||1,lt=st.lt,xc=X(lt);
+    [{k:'Q',max:1,lab:'E[q_c]  target posterior'},{k:'G',max:gmax,lab:'E‖g_c‖  correction strength'}].forEach((p,pi)=>{
+      const y0=top+pi*(ph+gap),Y=v=>y0+ph-(v/p.max)*(ph-18*dpr);
+      ctx.fillStyle=col.muted;ctx.textAlign='left';ctx.fillText(p.lab,padL+4*dpr,y0+9*dpr);
+      ctx.strokeStyle=col.line;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(padL,y0+ph);ctx.lineTo(W-padR,y0+ph);ctx.stroke();ctx.beginPath();ctx.moveTo(padL,Y(p.max));ctx.lineTo(W-padR,Y(p.max));ctx.stroke();
+      ctx.textAlign='right';ctx.fillText('0',padL-5*dpr,y0+ph+3*dpr);ctx.fillText(p.k==='Q'?'1':p.max.toPrecision(2),padL-5*dpr,Y(p.max)+3*dpr);
+      [[C1,col.muted,2],[C2,col.accent,2.6]].forEach(([C,c,w])=>{ctx.strokeStyle=c;ctx.lineWidth=w*dpr;ctx.beginPath();C[p.k].forEach((v,i)=>{const x=X(LG[i]),y=Y(v);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();
+        let i=0;while(i<NT-2&&LG[i+1]<lt)i++;const f=Math.min(1,Math.max(0,(lt-LG[i])/(LG[i+1]-LG[i]))),v=C[p.k][i]*(1-f)+C[p.k][i+1]*f;ctx.fillStyle=c;ctx.beginPath();ctx.arc(xc,Y(v),3.6*dpr,0,7);ctx.fill()});
+      ctx.strokeStyle=col.ink;ctx.lineWidth=1*dpr;ctx.setLineDash([3*dpr,3*dpr]);ctx.beginPath();ctx.moveTo(xc,y0+14*dpr);ctx.lineTo(xc,y0+ph);ctx.stroke();ctx.setLineDash([])});
+    ctx.fillStyle=col.muted;ctx.textAlign='center';for(const tv of [0.01,0.1,0.5,0.9,0.99])ctx.fillText(String(tv).replace(/^0/,''),X(logit(tv)),H-4*dpr);
+    ctx.textAlign='left';ctx.fillText('t',padL-28*dpr,H-4*dpr)}
+
+  function render(){
+    if(C2a!==st.a2){C2=curve(st.a2);C2a=st.a2}
+    const t=sig(st.lt),gref=Math.max(C1.peak,C2.peak);
+    $('a2-out').textContent='α = '+fmtA(st.a2);$('t-out').textContent=(t<0.01||t>0.99)?t.toPrecision(2):t.toFixed(3);
+    drawClean($('c1a'),A1);drawClean($('c2a'),st.a2);drawNoised($('c1b'),A1,t,gref);drawNoised($('c2b'),st.a2,t,gref);drawCurves(t)}
+  let raf=0;const sched=()=>{if(!raf)raf=requestAnimationFrame(()=>{raf=0;render()})};
+
+  $('a2').addEventListener('input',e=>{st.a2=Math.pow(10,+e.target.value);sched()});
+  $('tl').addEventListener('input',e=>{st.lt=+e.target.value;stop();sched()});
+  $('probe').addEventListener('change',e=>{st.probe=e.target.checked;['c1b','c2b'].forEach(id=>$(id).style.cursor=st.probe?'crosshair':'');sched()});
+  const play=$('play');let last=0,pr=0;
+  function stop(){st.playing=false;play.textContent='▶ Play denoising';play.setAttribute('aria-pressed','false');cancelAnimationFrame(pr)}
+  function step(ts){if(!st.playing)return;const dt=last?(ts-last)/1000:0;last=ts;st.lt+=dt*1.6;if(st.lt>=4.6){st.lt=4.6;$('tl').value=st.lt;render();stop();return}$('tl').value=st.lt.toFixed(2);render();pr=requestAnimationFrame(step)}
+  play.addEventListener('click',()=>{if(st.playing){stop();return}if(st.lt>=4.5)st.lt=-4.6;st.playing=true;last=0;play.textContent='❚❚ Pause';play.setAttribute('aria-pressed','true');pr=requestAnimationFrame(step)});
+  ['c1b','c2b'].forEach(id=>{const cv=$(id);let drag=false;
+    const set=ev=>{const r=cv.getBoundingClientRect();st.u=[Math.max(-1,Math.min(1,((ev.clientX-r.left)/r.width)*2-1)),Math.max(-1,Math.min(1,1-((ev.clientY-r.top)/r.height)*2))];sched()};
+    cv.addEventListener('pointerdown',ev=>{if(!st.probe)return;drag=true;cv.setPointerCapture(ev.pointerId);set(ev)});
+    cv.addEventListener('pointermove',ev=>{if(drag)set(ev)});cv.addEventListener('pointerup',()=>drag=false);cv.addEventListener('pointercancel',()=>drag=false);
+    cv.addEventListener('keydown',e=>{if(!st.probe)return;const d=0.05,m={ArrowLeft:[-d,0],ArrowRight:[d,0],ArrowUp:[0,d],ArrowDown:[0,-d]}[e.key];if(!m)return;e.preventDefault();st.u=[Math.max(-1,Math.min(1,st.u[0]+m[0])),Math.max(-1,Math.min(1,st.u[1]+m[1]))];sched()})});
+
+  const retheme=()=>{readTheme();sched()};
+  try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',retheme)}catch(e){}
+  new MutationObserver(retheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  if('ResizeObserver' in window)new ResizeObserver(()=>sched()).observe($('tw'));
+  readTheme();C1=curve(A1);$('a1-out').textContent='α = '+fmtA(A1);render();
+})();
+</script>
+
+</body>
+</html>
